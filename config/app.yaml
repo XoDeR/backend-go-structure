@@ -1,0 +1,12 @@
+app:
+  name: "Nexus"
+  environment: "development" # development, staging, production
+  debug: true
+  version: "1.0.0"
+
+server:
+  host: "localhost"
+  port: 8080
+  read_timeout: 30s
+  write_timeout: 30s
+  shutdown_timeout: 10s
