@@ -1,9 +1,18 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
+	"net/http"
 	"nexus/internal/infrastructure/config"
+	"nexus/pkg/logger"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -16,4 +25,50 @@ func main() {
 	slog.Info("Configuration loaded",
 		slog.String("environment", cfg.App.Environment),
 		slog.String("version", cfg.App.Version))
+
+	if cfg.App.Environment == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	r := gin.New()
+
+	srv := &http.Server{
+		Addr:         fmt.Sprintf(":%d", cfg.Server.Port),
+		Handler:      r,
+		ReadTimeout:  cfg.Server.ReadTimeout,
+		WriteTimeout: cfg.Server.WriteTimeout,
+	}
+
+	go func() {
+		host := cfg.Server.Host
+		if host == "0.0.0.0" || host == "" {
+			host = "localhost"
+		}
+
+		logger.Info("Server started",
+			slog.Int("port", cfg.Server.Port),
+			slog.String("host", cfg.Server.Host),
+			slog.String("health_check", fmt.Sprintf("http://%s:%d/api/v1/health", host, cfg.Server.Port)),
+			slog.String("environment", cfg.App.Environment),
+		)
+
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("Failed to start server", slog.Any("error", err))
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	logger.Info("Exiting server gracefully...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Fatal("Server forced to exit", slog.Any("error", err))
+	}
+
+	logger.Info("Server exited gracefully")
 }
