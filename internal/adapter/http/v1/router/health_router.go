@@ -1,7 +1,7 @@
 package router
 
 import (
-	"nexus/internal/infrastructure/config/adapter/http/v1/handler"
+	"nexus/internal/adapter/http/v1/handler"
 
 	"github.com/gin-gonic/gin"
 )

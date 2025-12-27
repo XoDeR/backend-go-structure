@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"nexus/internal/adapter/http/v1/router"
 	"nexus/internal/infrastructure/config"
 	"nexus/pkg/logger"
 	"os"
@@ -26,11 +27,25 @@ func main() {
 		slog.String("environment", cfg.App.Environment),
 		slog.String("version", cfg.App.Version))
 
+	// Init modules
+	healthRouter := router.InitHealthModule()
+
+	// HTTP server
+
 	if cfg.App.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	r := gin.New()
+
+	// Routes
+	api := r.Group("/api")
+
+	v1 := api.Group("/v1")
+	{
+		v1Router := router.NewV1Router(healthRouter)
+		v1Router.Setup(v1)
+	}
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.Server.Port),

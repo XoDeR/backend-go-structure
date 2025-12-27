@@ -2,7 +2,7 @@ package handler
 
 import (
 	"net/http"
-	"nexus/internal/infrastructure/config/adapter/http/shared/response"
+	"nexus/internal/adapter/http/shared/response"
 	"nexus/pkg/logger/version"
 	"time"
 
