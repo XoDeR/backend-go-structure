@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"nexus/internal/adapter/http/v1/router"
 	"nexus/internal/infrastructure/config"
+	"nexus/internal/infrastructure/database"
 	"nexus/pkg/logger"
 	"os"
 	"os/signal"
@@ -17,6 +18,7 @@ import (
 )
 
 func main() {
+	// Config
 	cfg, err := config.Load()
 	if err != nil {
 		slog.Error("Failed to load config", slog.Any("error", err))
@@ -26,6 +28,17 @@ func main() {
 	slog.Info("Configuration loaded",
 		slog.String("environment", cfg.App.Environment),
 		slog.String("version", cfg.App.Version))
+
+	// Connect to db
+	db, err := database.NewPostgresConnection(&cfg.Database)
+	if err != nil {
+		logger.Fatal("Failed to connect to database", slog.Any("error", err))
+	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			logger.Error("Failed to close database connection", slog.Any("error", err))
+		}
+	}()
 
 	// Init modules
 	healthRouter := router.InitHealthModule()
