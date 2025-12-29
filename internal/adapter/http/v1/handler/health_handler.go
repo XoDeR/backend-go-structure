@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 	"nexus/internal/adapter/http/shared/response"
-	"nexus/pkg/logger/version"
+	"nexus/pkg/version"
 	"time"
 
 	"github.com/gin-gonic/gin"
