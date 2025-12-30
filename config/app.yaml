@@ -22,3 +22,9 @@ database:
   max_idle_conns: 5
   conn_max_lifetime: 5m
   conn_max_idle_time: 10m
+
+jwt:
+  secret: "super-secret-key-change-for-real-in-production"
+  access_token_duration: 15m
+  refresh_token_duration: 168h # 7 days
+  issuer: "nexus-api"

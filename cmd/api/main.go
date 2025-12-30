@@ -15,6 +15,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	jwtpkg "nexus/pkg/jwt"
 )
 
 func main() {
@@ -39,6 +41,13 @@ func main() {
 			logger.Error("Failed to close database connection", slog.Any("error", err))
 		}
 	}()
+
+	// Init JWT
+	jwtManager := jwtpkg.NewJWTManager(
+		cfg.JWT.Secret,
+		cfg.JWT.AccessTokenDuration,
+		cfg.JWT.RefreshTokenDuration,
+	)
 
 	// Init modules
 	healthRouter := router.InitHealthModule()

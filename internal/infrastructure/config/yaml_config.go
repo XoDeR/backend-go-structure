@@ -12,6 +12,7 @@ type AppConfig struct {
 	App      AppSection      `yaml:"app"`
 	Server   ServerSection   `yaml:"server"`
 	Database DatabaseSection `yaml:"database"`
+	JWT      JWTSection      `yaml:"jwt"`
 }
 
 type AppSection struct {
@@ -41,6 +42,13 @@ type DatabaseSection struct {
 	MaxIdleConns    int           `yaml:"max_idle_conns"`
 	ConnMaxLifetime time.Duration `yaml:"conn_max_lifetime"`
 	ConnMaxIdleTime time.Duration `yaml:"conn_max_idle_time"`
+}
+
+type JWTSection struct {
+	Secret               string        `yaml:"secret"`
+	AccessTokenDuration  time.Duration `yaml:"access_token_duration"`
+	RefreshTokenDuration time.Duration `yaml:"refresh_token_duration"`
+	Issuer               string        `yaml:"issuer"`
 }
 
 func Load() (*AppConfig, error) {
