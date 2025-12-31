@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"nexus/internal/adapter/http/shared/middleware"
 	"nexus/internal/adapter/http/v1/router"
 	"nexus/internal/infrastructure/config"
 	"nexus/internal/infrastructure/database"
@@ -48,6 +49,10 @@ func main() {
 		cfg.JWT.AccessTokenDuration,
 		cfg.JWT.RefreshTokenDuration,
 	)
+
+	// Init shared middleware
+	authMiddleware := middleware.NewAuthMiddleware(jwtManager)
+	_ = authMiddleware
 
 	// Init modules
 	healthRouter := router.InitHealthModule()
